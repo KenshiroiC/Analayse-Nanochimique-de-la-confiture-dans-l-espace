@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  NO PUB YTP
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,12 +12,14 @@
 // ==/UserScript==
 
 (function() {
+    // Variables
     let isAdFound = false;
     let adLoop = 0;
     let videoPlayback = 1;
     let originalVolume = 1;
     let hasIgnoredUpdate = false;
     const updateModal = { enable: true, timer: 5000 };
+    const scriptUrl = 'https://raw.githubusercontent.com/KenshiroiC/Analayse-Nanochimique-de-la-confiture-dans-l-espace/main/confiture_spaciale.user.js';
 
     const event = new PointerEvent('click', {
         pointerId: 1,
@@ -44,6 +46,7 @@
         isPrimary: true
     });
 
+    // Fonction principale pour supprimer les publicités
     function removeAds() {
         setInterval(() => {
             const video = document.querySelector('video');
@@ -70,6 +73,7 @@
         }, 50);
     }
 
+    // Fonction pour ignorer les publicités
     function skipAd() {
         const skipButtons = [
             '.ytp-ad-skip-button-container',
@@ -79,20 +83,18 @@
             '.ytp-ad-skip-button-modern',
             '.ytp-ad-skip-button-slot',
             '.ytp-skip-ad-button',
-            '#skip-button\\:3', // Specific ID from the provided image
+            '#skip-button\\:3',
             '#skip-button'
         ];
 
         skipButtons.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            if (elements && elements.length > 0) {
-                elements.forEach(element => {
-                    element.dispatchEvent(event);
-                });
-            }
+            document.querySelectorAll(selector).forEach(element => {
+                element.dispatchEvent(event);
+            });
         });
     }
 
+    // Fonction pour gérer la lecture de la vidéo
     function handleVideoPlayback(video) {
         if (video && video.playbackRate === 10) {
             video.playbackRate = videoPlayback;
@@ -101,7 +103,7 @@
 
         if (isAdFound) {
             isAdFound = false;
-            if (videoPlayback === 10) videoPlayback = 1;
+            videoPlayback = videoPlayback === 10 ? 1 : videoPlayback;
             if (video && isFinite(videoPlayback)) video.playbackRate = videoPlayback;
             adLoop = 0;
         } else {
@@ -109,14 +111,11 @@
         }
     }
 
+    // Fonction pour vérifier les mises à jour du script
     function checkForUpdate() {
-        const scriptUrl = 'https://raw.githubusercontent.com/KenshiroiC/Analayse-Nanochimique-de-la-confiture-dans-l-espace/main/confiture_spaciale.user.js';
-
         fetch(scriptUrl)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
+                if (!response.ok) throw new Error("Network response was not ok");
                 return response.text();
             })
             .then(content => {
@@ -130,65 +129,17 @@
                 const currentVersion = parseFloat(GM_info.script.version);
 
                 if (githubVersion <= currentVersion) {
-                    console.log('You have the latest version of the script. ' + githubVersion + " : " + currentVersion);
+                    console.log(`You have the latest version of the script. ${githubVersion} : ${currentVersion}`);
                     return;
                 }
 
-                console.log('NO PUB YTP: A new version is available. Please update your script. ' + githubVersion + " : " + currentVersion);
+                console.log(`NO PUB YTP: A new version is available. Please update your script. ${githubVersion} : ${currentVersion}`);
 
                 if (updateModal.enable) {
-                    if (parseFloat(localStorage.getItem('skipNoPubYTPVersion')) === githubVersion) {
-                        return;
-                    }
-                    const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
-                    document.head.appendChild(script);
-
-                    const style = document.createElement('style');
-                    style.textContent = '.swal2-container { z-index: 2400; }';
-                    document.head.appendChild(style);
-
-                    script.onload = function () {
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                position: "top-end",
-                                backdrop: false,
-                                title: 'NO PUB YTP: New version is available.',
-                                text: 'Do you want to update?',
-                                showCancelButton: true,
-                                showDenyButton: true,
-                                confirmButtonText: 'Update',
-                                denyButtonText: 'Skip',
-                                cancelButtonText: 'Close',
-                                timer: updateModal.timer ?? 5000,
-                                timerProgressBar: true,
-                                didOpen: (modal) => {
-                                    modal.onmouseenter = Swal.stopTimer;
-                                    modal.onmouseleave = Swal.resumeTimer;
-                                }
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.replace('https://github.com/KenshiroiC/Analayse-Nanochimique-de-la-confiture-dans-l-espace/raw/main/confiture_spaciale.user.js');
-                                } else if (result.isDenied) {
-                                    localStorage.setItem('skipNoPubYTPVersion', githubVersion);
-                                }
-                            });
-                        } else {
-                            console.error("SweetAlert2 not loaded properly.");
-                        }
-                    };
-
-                    script.onerror = function () {
-                        var result = window.confirm("NO PUB YTP: A new version is available. Please update your script.");
-                        if (result) {
-                            window.location.replace('https://github.com/KenshiroiC/Analayse-Nanochimique-de-la-confiture-dans-l-espace/raw/main/confiture_spaciale.user.js');
-                        }
-                    }
+                    if (parseFloat(localStorage.getItem('skipNoPubYTPVersion')) === githubVersion) return;
+                    loadSweetAlert(githubVersion);
                 } else {
-                    var result = window.confirm("NO PUB YTP: A new version is available. Please update your script.");
-                    if (result) {
-                        window.location.replace('https://github.com/KenshiroiC/Analayse-Nanochimique-de-la-confiture-dans-l-espace/raw/main/confiture_spaciale.user.js');
-                    }
+                    confirmUpdate();
                 }
             })
             .catch(error => {
@@ -196,6 +147,59 @@
                 console.error("Error checking for updates:", error);
             });
         hasIgnoredUpdate = true;
+    }
+
+    // Fonction pour charger SweetAlert
+    function loadSweetAlert(githubVersion) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+        document.head.appendChild(script);
+
+        const style = document.createElement('style');
+        style.textContent = '.swal2-container { z-index: 2400; }';
+        document.head.appendChild(style);
+
+        script.onload = function () {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    position: "top-end",
+                    backdrop: false,
+                    title: 'NO PUB YTP: New version is available.',
+                    text: 'Do you want to update?',
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: 'Update',
+                    denyButtonText: 'Skip',
+                    cancelButtonText: 'Close',
+                    timer: updateModal.timer ?? 5000,
+                    timerProgressBar: true,
+                    didOpen: (modal) => {
+                        modal.onmouseenter = Swal.stopTimer;
+                        modal.onmouseleave = Swal.resumeTimer;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.replace(scriptUrl);
+                    } else if (result.isDenied) {
+                        localStorage.setItem('skipNoPubYTPVersion', githubVersion);
+                    }
+                });
+            } else {
+                console.error("SweetAlert2 not loaded properly.");
+            }
+        };
+
+        script.onerror = function () {
+            confirmUpdate();
+        }
+    }
+
+    // Fonction pour confirmer la mise à jour
+    function confirmUpdate() {
+        const result = window.confirm("NO PUB YTP: A new version is available. Please update your script.");
+        if (result) {
+            window.location.replace(scriptUrl);
+        }
     }
 
     checkForUpdate();
