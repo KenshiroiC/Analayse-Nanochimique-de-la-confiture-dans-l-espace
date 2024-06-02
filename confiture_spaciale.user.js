@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.2
 // @description  NO PUB YTP
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
