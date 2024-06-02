@@ -2,7 +2,7 @@
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
 // @version      1.2
-// @description  NO PUB YTP
+// @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=youtube.com
