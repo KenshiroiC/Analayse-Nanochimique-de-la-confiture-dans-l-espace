@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      2.0
 // @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,18 +12,16 @@
 // ==/UserScript==
 
 /*
-1.5 règle le probleme de son réactivé après un enchainnement de PUB (avant ca il y avait encore le son lors de la seconde pub) 
+2.0 le code du gars ne fonctionne que pour la premiere video, la meilleure solution trouvé est de recharge la page quand c la deuxieme video :) comme ca pas de bug
 */
 
 (function()
 {
     // Variables
-    let isAdFound = false;
-    let adLoop = 0;
-    let videoPlayback = 1;
-    let originalVolume = 1;
     let hasIgnoredUpdate = false;
     const updateModal = { enable: true, timer: 5000 };
+    let currentUrl = window.location.href;
+    let isVideoPlayerModified = false;
     const scriptUrl = 'https://raw.githubusercontent.com/KenshiroiC/Analayse-Nanochimique-de-la-confiture-dans-l-espace/main/confiture_spaciale.user.js';
 
     const event = new PointerEvent('click',
@@ -55,73 +53,75 @@
     // Fonction principale pour supprimer les publicités
     function removeAds()
     {
-        setInterval(() =>
-        {
-            const video = document.querySelector('video');
-            const ad = document.querySelector('.ad-showing');
+        setInterval(() => {
+            if (window.location.href !== currentUrl) { window.location.reload(); }
+            if (isVideoPlayerModified) { return; }
 
-            if (ad)
+            var video = document.querySelector('video');
+            if (video) video.volume = 0;
+            if (video) video.pause();
+            if (video) video.remove();
+            if(!clearAllPlayers()) { return; }
+
+            let videoID = '';
+            const baseURL = 'https://www.youtube.com/watch?v=';
+            const startIndex = currentUrl.indexOf(baseURL);
+
+            if (startIndex !== -1)
             {
-                if (adLoop == 0)
-                { originalVolume = video.volume; }
-                isAdFound = true;
-                adLoop += 1;
+                const videoIDStart = startIndex + baseURL.length;
+                videoID = currentUrl.substring(videoIDStart);
+                const ampersandIndex = videoID.indexOf('&');
+                if (ampersandIndex !== -1) { videoID = videoID.substring(0, ampersandIndex); }
 
-                if (adLoop >= 2 && video.currentTime > 0.10)
-                {
-                    let randomNumber = Math.floor(Math.random() * 2) + 1;
-                    video.playbackRate = 10 - randomNumber;
-                }
-                video.volume = 0;
-                skipAd();
-                video.play();
             }
-            else handleVideoPlayback(video);
-        }, 50);
+            else { return null; }
+
+            const startOfUrl = "https://www.youtube-nocookie.com/embed/";
+            const endOfUrl = "?autoplay=1&modestbranding=1";
+            const finalUrl = startOfUrl + videoID + endOfUrl;
+
+            const iframe = document.createElement('iframe');
+
+            iframe.setAttribute('src', finalUrl);
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+            iframe.setAttribute('allowfullscreen', true);
+            iframe.setAttribute('mozallowfullscreen', "mozallowfullscreen");
+            iframe.setAttribute('msallowfullscreen', "msallowfullscreen");
+            iframe.setAttribute('oallowfullscreen', "oallowfullscreen");
+            iframe.setAttribute('webkitallowfullscreen', "webkitallowfullscreen");
+
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.position = 'absolute';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.zIndex = '9999';
+            iframe.style.pointerEvents = 'all';
+
+            const videoPlayerElement = document.querySelector('.html5-video-player');
+            videoPlayerElement.appendChild(iframe);
+
+            isVideoPlayerModified = true;
+        }, 500);
     }
 
-    // Fonction pour ignorer les publicités
-    function skipAd()
-    {
-        const skipButtons =
-        [
-            '.ytp-ad-skip-button-container',
-            '.ytp-ad-skip-button-modern',
-            '.videoAdUiSkipButton',
-            '.ytp-ad-skip-button',
-            '.ytp-ad-skip-button-modern',
-            '.ytp-ad-skip-button-slot',
-            '.ytp-skip-ad-button',
-            '#skip-button\\:3',
-            '#skip-button'
-        ];
+    // Fonction de nettoyage
+    function clearAllPlayers() {
 
-        skipButtons.forEach(selector =>
+        const videoPlayerElements = document.querySelectorAll('.html5-video-player');
+        if (videoPlayerElements.length === 0)
         {
-            document.querySelectorAll(selector).forEach(element => { element.dispatchEvent(event); });
+            console.error("No elements with class 'html5-video-player' found.");
+            return false;
+        }
+        videoPlayerElements.forEach(videoPlayerElement =>
+        {
+            while (videoPlayerElement.firstChild) { videoPlayerElement.removeChild(videoPlayerElement.firstChild); }
         });
-    }
-
-    // Fonction pour gérer la lecture de la vidéo
-    function handleVideoPlayback(video)
-    {
-        if (video && video.playbackRate === 10)
-        {
-            video.playbackRate = videoPlayback;
-        }
-
-        if (isAdFound)
-        {
-            isAdFound = false;
-            videoPlayback = videoPlayback === 10 ? 1 : videoPlayback;
-            if (video && isFinite(videoPlayback)) video.playbackRate = videoPlayback;
-            adLoop = 0;
-            video.volume = originalVolume;
-        }
-        else
-        {
-            if (video) videoPlayback = video.playbackRate;
-        }
+        console.log("Removed all current players!");
+        return true;
     }
 
     // Fonction pour vérifier les mises à jour du script
