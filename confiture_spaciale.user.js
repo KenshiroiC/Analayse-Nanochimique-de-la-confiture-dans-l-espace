@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-1.5 règle le probleme de son réactivé après un enchainnement de PUB (avant ca il y avait encore le son lors de la seconde pub)
+2.1 on croise les doigts
 */
 
 (function()
