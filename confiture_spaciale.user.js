@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-2.1 on croise les doigts
+2.3 modifs et augmentations des vitesses de lecture de pub
 */
 
 (function()
