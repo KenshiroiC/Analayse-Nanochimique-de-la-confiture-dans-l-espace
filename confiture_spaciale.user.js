@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      2.4
+// @version      2.5
 // @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-2.4 modif du temps d'attente avant de skip
+2.5 utilisation de variables float au lieu de int pour le random
 */
 
 (function()
@@ -70,8 +70,8 @@
 
                 if (adLoop >= 2 && video.currentTime > 0.112)
                 {
-                    let randomNumber = Math.floor(Math.random() * 2) + 1;
-                    video.playbackRate = 14 - randomNumber;
+                    let randomNumber = (Math.random() * 2.0) + 1.0;
+                    video.playbackRate = 14.0 - randomNumber;
                     console.log('test');
                 }
                 if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
