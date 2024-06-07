@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      2.6
 // @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-2.5 utilisation de variables float au lieu de int pour le random
+2.6 desactivation du ignore button
 */
 
 (function()
@@ -74,7 +74,7 @@
                     video.playbackRate = 14.0 - randomNumber;
                     console.log('test');
                 }
-                if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
+                //if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
                 video.play();
             }
             else handleVideoPlayback(video);
