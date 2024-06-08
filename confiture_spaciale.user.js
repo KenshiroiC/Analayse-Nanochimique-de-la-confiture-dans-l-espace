@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      2.6
+// @version      2.7
 // @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-2.6 desactivation du ignore button
+2.7 button du piffometre
 */
 
 (function()
@@ -26,7 +26,7 @@
     const updateModal = { enable: true, timer: 5000 };
     const scriptUrl = 'https://raw.githubusercontent.com/KenshiroiC/Analayse-Nanochimique-de-la-confiture-dans-l-espace/main/confiture_spaciale.user.js';
 
-    const event = new PointerEvent('click',
+    var event = new PointerEvent('click',
     {
         pointerId: 1,
         bubbles: true,
@@ -72,9 +72,8 @@
                 {
                     let randomNumber = (Math.random() * 2.0) + 1.0;
                     video.playbackRate = 14.0 - randomNumber;
-                    console.log('test');
                 }
-                //if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
+                if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
                 video.play();
             }
             else handleVideoPlayback(video);
@@ -97,11 +96,44 @@
             '#skip-button'
         ];
 
+        event = new PointerEvent('click',
+        {
+            pointerId: getRandomInt(1, 99),
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            detail: 1,
+            screenX: 0,
+            screenY: 0,
+            clientX: getRandomInt(0, 10),
+            clientY: getRandomInt(0, 10),
+            ctrlKey: false,
+            altKey: false,
+            shiftKey: false,
+            metaKey: false,
+            button: 0,
+            buttons: 1,
+            width: getRandomInt(1, 10),
+            height: getRandomInt(1, 10),
+            pressure: getRandomFloat(0.1, 0.9),
+            tiltX: 0,
+            tiltY: 0,
+            pointerType: 'mouse',
+            isPrimary: true
+        });
+
         skipButtons.forEach(selector =>
         {
             document.querySelectorAll(selector).forEach(element => { element.dispatchEvent(event); });
         });
+        console.log('click');
     }
+
+    function getRandomInt(min, max)
+    { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function getRandomFloat(min, max)
+    { return Math.random() * (max - min) + min; }
 
     // Fonction pour gérer la lecture de la vidéo
     function handleVideoPlayback(video)
