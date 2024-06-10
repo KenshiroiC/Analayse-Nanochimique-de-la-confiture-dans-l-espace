@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-3.0 augmentation du wait
+3.1 augmentation du wait
 */
 
 (function()
@@ -68,7 +68,7 @@
                 isAdFound = true;
                 adLoop += 1;
 
-                if (adLoop >= 2 && video.currentTime > 0.224) { video.playbackRate = 8.0 - (Math.random() * 2.0); }
+                if (adLoop >= 2 && video.currentTime > 1.224) { video.playbackRate = 8.0 - (Math.random() * 2.0); }
                 if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
                 video.play();
             }
