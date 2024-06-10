@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      2.8
+// @version      2.9
 // @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-2.8 reduction de la vitesse, soluce tempor
+2.9 legere modif
 */
 
 (function()
@@ -68,11 +68,7 @@
                 isAdFound = true;
                 adLoop += 1;
 
-                if (adLoop >= 2 && video.currentTime > 0.112)
-                {
-                    let randomNumber = (Math.random() * 2.0) + 1.0;
-                    video.playbackRate = 9.0 - randomNumber;
-                }
+                if (adLoop >= 2 && video.currentTime > 0.112) { video.playbackRate = 8.0 - (Math.random() * 2.0); }
                 if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
                 video.play();
             }
