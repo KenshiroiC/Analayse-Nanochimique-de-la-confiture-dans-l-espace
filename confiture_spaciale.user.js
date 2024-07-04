@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         confiture_spaciale
 // @namespace    http://tampermonkey.net/
-// @version      3.2
+// @version      3.3
 // @description  confiture_spaciale
 // @author       Kenshiroi
 // @match        https://www.youtube.com/*
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 /*
-3.2 augmentation de la vitesse de lecture
+3.3 correctif temporaire (sans bouton ignore)
 */
 
 (function()
@@ -68,8 +68,8 @@
                 isAdFound = true;
                 adLoop += 1;
 
-                if (adLoop >= 2 && video.currentTime > 1.224) { video.playbackRate = 16.0 - (Math.random() * 2.0); }
-                if (adLoop >= 3 && video.currentTime > 5.224) skipAd();
+                if (adLoop >= 2 && video.currentTime > 1.224) { video.playbackRate = 12.0 - (Math.random() * 2.0); }
+                //if (adLoop >= 3 && video.currentTime > 11.224) skipAd();
                 video.play();
             }
             else handleVideoPlayback(video);
@@ -91,7 +91,7 @@
             '#skip-button\\:3',
             '#skip-button'
         ];
-
+        /*
         event = new PointerEvent('click',
         {
             pointerId: getRandomInt(1, 99),
@@ -117,6 +117,7 @@
             pointerType: 'mouse',
             isPrimary: true
         });
+        */
 
         skipButtons.forEach(selector =>
         {
@@ -134,7 +135,7 @@
     // Fonction pour gérer la lecture de la vidéo
     function handleVideoPlayback(video)
     {
-        if (video && video.playbackRate === 10)
+        if (video && video.playbackRate > 2)
         {
             video.playbackRate = videoPlayback;
         }
@@ -142,7 +143,7 @@
         if (isAdFound)
         {
             isAdFound = false;
-            videoPlayback = videoPlayback === 10 ? 1 : videoPlayback;
+            videoPlayback = videoPlayback > 2 ? 1 : videoPlayback;
             if (video && isFinite(videoPlayback)) video.playbackRate = videoPlayback;
             adLoop = 0;
             video.volume = originalVolume;
